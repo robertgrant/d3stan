@@ -1,0 +1,9 @@
+setwd('/Users/robert/git/stan-crossfilter')
+chains<-read.csv('statastan.csv')
+th<-chains$theta
+lp<-chains$lp__
+n<-length(th)
+sp<-smooth.spline(x=1:1000,y=chains$theta,all.knots=FALSE,nknots=40,df=30)
+spl<-predict(sp,1:1000)$y
+plot(1:1000,spl,type='l',col='#d35151',cex=3,ylim=c(min(th),max(th)))
+lines(1:n,th,col='#46b4b4aa')
