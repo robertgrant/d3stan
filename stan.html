@@ -380,12 +380,13 @@ d3.csv("statastan.csv", function(error, data) {
    ################# line charts ###################
    ################################################# */
 
-	var chainwidth = 700,
+	var chainwidth = 900,
 		chainheight = 300,
 		axisLabelSpace = 50,
 		legendSpace = 100,
-		x = d3.scale.linear().range([0, chainwidth]),
-		y = d3.scale.linear().range([chainheight, 0]),
+    chainaxispad = 30,
+		x = d3.scale.linear().range([0, chainwidth-chainaxispad]),
+		y = d3.scale.linear().range([chainheight-chainaxispad, 0]),
 		xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(5),
 		yAxis = d3.svg.axis().scale(y).orient('left').ticks(5);
 
@@ -405,7 +406,10 @@ d3.csv("statastan.csv", function(error, data) {
  var thetasvg = d3.select('div#thetaline').append('svg')
           .attr('width', chainwidth)
  			    .attr('height', chainheight)
-		.append('g');
+		.append('g')
+          .attr('width', chainwidth-chainaxispad)
+          .attr('height',chainheight-chainaxispad)
+          .attr('transform', 'translate(' + chainaxispad + ',0)');
 
 	var linedataNest = d3.nest()
 		.key(function(d) {return d.twoway;})
@@ -417,7 +421,16 @@ d3.csv("statastan.csv", function(error, data) {
   		.attr('d', makeline(d.values));
   });
 
+  var xaxisheight = chainheight-chainaxispad;
 
+	thetasvg.append('g')
+		.attr('class', 'x axis')
+		.attr('transform', 'translate(0,' + xaxisheight + ')')
+		.call(xAxis);
+
+	thetasvg.append('g')
+		.attr('class', 'y axis')
+		.call(yAxis);
 
 
 });
