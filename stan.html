@@ -14,8 +14,14 @@ body {
   position: relative;
 }
 footer {
+  position: relative;
+  top: 15px;
   padding: 2em 0 1em 0;
   font-size: 12px;
+}
+div#thetaline {
+    position: relative;
+    top: 30px;
 }
 h1 {
   font-size: 96px;
@@ -81,6 +87,11 @@ aside {
   font-size: smaller;
   width: 220px;
 }
+path.chain {
+	stroke: steelblue;
+	stroke-width: 1;
+	fill: none;
+}
 </style>
 
 <div id="body">
@@ -130,11 +141,7 @@ d3.csv("statastan.csv", function(error, data) {
       formatChange = d3.format("+,d"),
       formatDate = d3.time.format("%B %d, %Y"),
       formatTime = d3.time.format("%I:%M %p");
-  // A nest operator, for grouping the flight list.
-  /*
-    var nestByDate = d3.nest()
-      .key(function(d) { return d3.time.day(d.date); });
-  */
+
   // A little coercion, since the CSV is untyped.
   data.forEach(function(d, i) {
     d.index = i;
@@ -170,11 +177,6 @@ d3.csv("statastan.csv", function(error, data) {
   var chart = d3.selectAll(".chart")
       .data(charts)
       .each(function(chart) { chart.on("brush", renderAll).on("brushend", renderAll); });
-  // Render the initial lists.
-/*
-    var list = d3.selectAll(".list")
-      .data([chainList]);
-*/
   // Render the total.
   d3.selectAll("#total")
       .text(formatNumber(chain.size()));
@@ -189,16 +191,6 @@ d3.csv("statastan.csv", function(error, data) {
     //list.each(render);
     d3.select("#active").text(formatNumber(all.value()));
   }
-  /*
-  // Like d3.time.format, but faster.
-  function parseDate(d) {
-    return new Date(2001,
-        d.substring(0, 2) - 1,
-        d.substring(2, 4),
-        d.substring(4, 6),
-        d.substring(6, 8));
-  }
-  */
   window.filter = function(filters) {
     filters.forEach(function(d, i) { charts[i].filter(d); });
     renderAll();
@@ -388,7 +380,45 @@ d3.csv("statastan.csv", function(error, data) {
    ################# line charts ###################
    ################################################# */
 
-   var thetasvg = d3.select('div#thetaline').append('svg');
+	var chainwidth = 700,
+		chainheight = 300,
+		axisLabelSpace = 50,
+		legendSpace = 100,
+		x = d3.scale.linear().range([0, chainwidth]),
+		y = d3.scale.linear().range([chainheight, 0]),
+		xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(5),
+		yAxis = d3.svg.axis().scale(y).orient('left').ticks(5);
+
+	var domainPadding = 0.2;
+
+  var lineminx = d3.min(data, function(d) { return d.index; });
+  var linemaxx = d3.max(data, function(d) { return d.index; });
+  var lineminy = d3.min(data, function(d) { return d.theta; });
+  var linemaxy = d3.max(data, function(d) { return d.theta; });
+	x.domain([lineminx,linemaxx]);
+	y.domain([lineminy,linemaxy]);
+
+	var makeline = d3.svg.line()
+		.x(function(d) { return x(d.index); })
+		.y(function(d) { return y(d.theta); });
+
+ var thetasvg = d3.select('div#thetaline').append('svg')
+          .attr('width', chainwidth)
+ 			    .attr('height', chainheight)
+		.append('g');
+
+	var linedataNest = d3.nest()
+		.key(function(d) {return d.twoway;})
+		.entries(data);
+
+	linedataNest.forEach(function(d,i) {
+    thetasvg.append('path')
+  		.attr('class', 'chain')
+  		.attr('d', makeline(d.values));
+  });
+
+
+
 
 });
 </script>

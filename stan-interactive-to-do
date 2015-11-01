@@ -5,3 +5,5 @@ Plan:
     perhaps there are 100 index bands on the screen
     the 40-60th centile is the darkest rectangle, then the 25-40 & 60-75, etc.
   calculate and show r hat and effective sample size, DIC, GLR?
+  splines over chains
+  drop-down list to choose parameters for chains
