@@ -1,0 +1,7 @@
+Plan:
+  need controls for thinning and discarding early samples
+  need to display multiple chains - either as superimposed line charts or densities
+  display chain(s) as quantiles within sample index number bands
+    perhaps there are 100 index bands on the screen
+    the 40-60th centile is the darkest rectangle, then the 25-40 & 60-75, etc.
+  calculate and show r hat and effective sample size, DIC, GLR?
