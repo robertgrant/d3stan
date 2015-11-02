@@ -1,7 +1,14 @@
 <!DOCTYPE html>
+<html>
+<head>
 
 <meta charset="utf-8">
 <title>Stan interactive diagnostics</title>
+
+<script src="crossfilter.v1.min.js"></script>
+<script src="d3.v3.min.js"></script>
+<script src='angular.min.js'></script>
+
 <style>
 
 body {
@@ -57,7 +64,7 @@ h2 {
   fill: #ccc;
 }
 .foreground.bar {
-  fill: #4682b4;
+  fill: #570814;
 }
 .axis path, .axis line {
   fill: none;
@@ -68,7 +75,7 @@ h2 {
   font: 10px sans-serif;
 }
 .brush rect.extent {
-  fill: steelblue;
+  fill: #570814;
   fill-opacity: .125;
 }
 .brush .resize path {
@@ -88,11 +95,18 @@ aside {
   width: 220px;
 }
 path.chain {
-	stroke: steelblue;
+	stroke: #b31028;
 	stroke-width: 1;
 	fill: none;
 }
 </style>
+
+</head>
+
+
+
+
+<body>
 
 <div id="body">
 
@@ -102,7 +116,7 @@ path.chain {
 
 <h2>Interactive diagnostic plots for Hamiltonian Monte Carlo chains</h2>
 
-<p><strong><a href="http://mc-stan.org">Stan</a></strong> is a C++ library for probabilistic sampling, with many interfaces allowing applied researchers to fit complex Bayesian models to their data from inside their favourite analysis software. It is essential to check that the samples have behaved as expected: that they have converged to a posterior distribution, that autocorrelation is not distorting the distribution of values, and that there are no outlier samples biasing the statistics. This is usually done with a mixture of diagnostic statistics and plots, which can be quite time-consuming when there are many parameters, which is why we wrote <strong>stan interactive</strong>. By writing the chains of successive samples into an interactive web page, we can employ the powerful JavaScript libraries D3 and crossfilter.</p>
+<p><strong><a href="http://mc-stan.org">Stan</a></strong> is a C++ library for probabilistic sampling, with many interfaces allowing applied researchers to fit complex Bayesian models to their data from inside their favourite analysis software. It is essential to check that the samples have behaved as expected: that they have converged to a posterior distribution, that autocorrelation is not distorting the distribution of values, and that there are no outlier samples biasing the statistics. This is usually done with a mixture of diagnostic statistics and plots, which can be quite time-consuming when there are many parameters, which is why we wrote <strong>stan interactive</strong>. By writing the chains of successive samples into an interactive web page, we can employ the powerful JavaScript libraries D3, crossfilter and angular to recalculate and draw charts on the fly, freeing up the user to concentrate on what the results mean.</p>
 
 
 <div id="charts">
@@ -125,14 +139,13 @@ path.chain {
     <a href="http://mc-stan.org">Stan</a> was released under the <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a> by the <a href="http://mc-stan.org/team/">Stan Development Team</a>.<br>
     <a href="http://d3js.org">d3.js</a> was released under the <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a> by <a href="http://bost.ocks.org/mike/">Mike Bostock</a>.<br>
     <a href="http://square.github.io/crossfilter/">crossfilter.js</a> was released under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License 2.0</a> by <a href="http://squareup.com">Square, Inc.</a><br>
+    <a href='https://angularjs.org'>angular.js</a> was released under the <a href='https://github.com/angular/angular.js/blob/master/LICENSE'>MIT license</a> by Google.<br>
   </span>
 
 </footer>
 
 </div>
 
-<script src="crossfilter.v1.min.js"></script>
-<script src="d3.v3.min.js"></script>
 <script>
 // (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
 d3.csv("statastan.csv", function(error, data) {
@@ -435,3 +448,7 @@ d3.csv("statastan.csv", function(error, data) {
 
 });
 </script>
+
+
+</body>
+</html>
