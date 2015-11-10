@@ -31,7 +31,7 @@ div#alphaline {
     top: 30px;
 }
 h1 {
-  font-size: 96px;
+  font-size: 88px;
   margin-top: .3em;
   margin-bottom: 0;
 }
@@ -40,11 +40,11 @@ h1 + h2 {
 }
 h2 {
   font-weight: 400;
-  font-size: 28px;
+  font-size: 24px;
 }
 #body > p {
   line-height: 1.5em;
-  width: 640px;
+  width: 800px;
   text-rendering: optimizeLegibility;
 }
 #charts {
@@ -88,6 +88,18 @@ h2 {
 #lp-chart {
   width: 420px;
 }
+#beta1-chart {
+  width: 420px;
+}
+#beta2-chart {
+  width: 420px;
+}
+#beta3-chart {
+  width: 420px;
+}
+#beta4-chart {
+  width: 420px;
+}
 aside {
   position: absolute;
   left: 740px;
@@ -99,6 +111,13 @@ path.chain {
 	stroke-width: 1;
 	fill: none;
 }
+img#logo {
+  position: absolute;
+  top: 15px;
+  left:715px;
+  z-index: -1;
+}
+
 </style>
 
 </head>
@@ -110,7 +129,7 @@ path.chain {
 
 <div id="body">
 
-<a href="http://mc-stan.org"><img src="stan_logo.png" width="120"></a>
+<a href="http://mc-stan.org"><img src="stan_logo.png" width="120" id="logo"></a>
 
 <h1>Stan interactive</h1>
 
@@ -125,6 +144,18 @@ path.chain {
   </div>
   <div id="alpha-chart" class="chart">
     <div class="title">alpha</div>
+  </div>
+  <div id="beta1-chart" class="chart">
+    <div class="title">beta1</div>
+  </div>
+  <div id="beta2-chart" class="chart">
+    <div class="title">beta2</div>
+  </div>
+  <div id="beta3-chart" class="chart">
+    <div class="title">beta3</div>
+  </div>
+  <div id="beta4-chart" class="chart">
+    <div class="title">beta4</div>
   </div>
 </div>
 
@@ -147,19 +178,22 @@ path.chain {
 </div>
 
 <script>
-// (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
+
 d3.csv("mmi-extract.csv", function(error, data) {
-  // Various formatters.
+
   var formatNumber = d3.format(",d"),
       formatChange = d3.format("+,d"),
       formatDate = d3.time.format("%B %d, %Y"),
       formatTime = d3.time.format("%I:%M %p");
 
-  // A little coercion, since the CSV is untyped.
   data.forEach(function(d, i) {
     d.index = i;
     d.lp__ = +d.lp__;
     d.alpha = +d.alpha;
+    d.beta1 = +d.beta1;
+    d.beta2 = +d.beta2;
+    d.beta3 = +d.beta3;
+    d.beta4 = +d.beta4;
   });
   // Create the crossfilter for the relevant dimensions and groups.
   var chain = crossfilter(data),
@@ -168,8 +202,19 @@ d3.csv("mmi-extract.csv", function(error, data) {
       glp = lp.group(function(d) { return Math.floor((d)/10) * 10; }),
       alpha = chain.dimension(function(d) { return d.alpha; }),
       galpha = alpha.group(function(d) { return Math.floor(d/(26/40)) * (26/40) ; }),
+      beta1 = chain.dimension(function(d) { return d.beta1; }),
+      gbeta1 = beta1.group(function(d) { return Math.floor(d/(1.2/40)) * (1.2/40) ; }),
+      beta2 = chain.dimension(function(d) { return d.beta2; }),
+      gbeta2 = beta2.group(function(d) { return Math.floor(d/(1.5/40)) * (1.5/40) ; }),
+      beta3 = chain.dimension(function(d) { return d.beta3; }),
+      gbeta3 = beta3.group(function(d) { return Math.floor(d/(4/40)) * (4/40) ; }),
+      beta4 = chain.dimension(function(d) { return d.beta4; }),
+      gbeta4 = beta4.group(function(d) { return Math.floor(d/(8/40)) * (8/40) ; }),
       ind = chain.dimension(function(d) {return d.index}),
       gind = ind.group(function(d) { return Math.floor(d);});
+
+  /* chart ranges should be multiples of ten because that is the width of a bar +
+      padding; allow 20px for margins within the width specified in CSS */
   var charts = [
     barChart()
         .dimension(lp)
@@ -182,11 +227,35 @@ d3.csv("mmi-extract.csv", function(error, data) {
         .group(galpha)
       .x(d3.scale.linear()
         .domain([24, 50])
+        .rangeRound([0, 400])),
+    barChart()
+        .dimension(beta1)
+        .group(gbeta1)
+      .x(d3.scale.linear()
+        .domain([-0.2, 1])
+        .rangeRound([0, 400])),
+    barChart()
+        .dimension(beta2)
+        .group(gbeta2)
+      .x(d3.scale.linear()
+        .domain([-0.5, 1])
+        .rangeRound([0, 400])),
+    barChart()
+        .dimension(beta3)
+        .group(gbeta3)
+      .x(d3.scale.linear()
+        .domain([-2, 2])
+        .rangeRound([0, 400])),
+    barChart()
+        .dimension(beta4)
+        .group(gbeta4)
+      .x(d3.scale.linear()
+        .domain([-2, 6])
         .rangeRound([0, 400]))
   ];
-  // Given our array of charts, which we assume are in the same order as the
-  // .chart elements in the DOM, bind the charts to the DOM and render them.
-  // We also listen to the chart's brush events to update the display.
+  /* Given our array of charts, which we assume are in the same order as the
+     .chart elements in the DOM, bind the charts to the DOM and render them.
+     We also listen to the chart's brush events to update the display. */
   var chart = d3.selectAll(".chart")
       .data(charts)
       .each(function(chart) { chart.on("brush", renderAll).on("brushend", renderAll); });
