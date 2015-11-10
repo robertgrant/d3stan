@@ -7,7 +7,7 @@
 
 <script src="crossfilter.v1.min.js"></script>
 <script src="d3.v3.min.js"></script>
-<script src='angular.min.js'></script>
+<!-- <script src='angular.min.js'></script> -->
 
 <style>
 
@@ -26,7 +26,7 @@ footer {
   padding: 2em 0 1em 0;
   font-size: 12px;
 }
-div#thetaline {
+div#alphaline {
     position: relative;
     top: 30px;
 }
@@ -82,7 +82,7 @@ h2 {
   fill: #eee;
   stroke: #666;
 }
-#theta-chart {
+#alpha-chart {
   width: 420px;
 }
 #lp-chart {
@@ -123,15 +123,15 @@ path.chain {
   <div id="lp-chart" class="chart">
     <div class="title">log-posterior</div>
   </div>
-  <div id="theta-chart" class="chart">
-    <div class="title">theta</div>
+  <div id="alpha-chart" class="chart">
+    <div class="title">alpha</div>
   </div>
 </div>
 
 <aside id="totals"><span id="active">-</span> of <span id="total">-</span> samples selected.</aside>
 
 
-<div id='thetaline'>
+<div id='alphaline'>
 </div>
 
 <footer>
@@ -148,7 +148,7 @@ path.chain {
 
 <script>
 // (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
-d3.csv("statastan.csv", function(error, data) {
+d3.csv("mmi-extract.csv", function(error, data) {
   // Various formatters.
   var formatNumber = d3.format(",d"),
       formatChange = d3.format("+,d"),
@@ -159,15 +159,15 @@ d3.csv("statastan.csv", function(error, data) {
   data.forEach(function(d, i) {
     d.index = i;
     d.lp__ = +d.lp__;
-    d.theta = +d.theta;
+    d.alpha = +d.alpha;
   });
   // Create the crossfilter for the relevant dimensions and groups.
   var chain = crossfilter(data),
       all = chain.groupAll(),
       lp = chain.dimension(function(d) { return d.lp__; }),
-      glp = lp.group(function(d) { return Math.floor(d*10) / 10; }),
-      theta = chain.dimension(function(d) { return d.theta; }),
-      gtheta = theta.group(function(d) { return Math.floor(d *50) / 50; }),
+      glp = lp.group(function(d) { return Math.floor((d)/10) * 10; }),
+      alpha = chain.dimension(function(d) { return d.alpha; }),
+      galpha = alpha.group(function(d) { return Math.floor(d/(26/40)) * (26/40) ; }),
       ind = chain.dimension(function(d) {return d.index}),
       gind = ind.group(function(d) { return Math.floor(d);});
   var charts = [
@@ -175,14 +175,14 @@ d3.csv("statastan.csv", function(error, data) {
         .dimension(lp)
         .group(glp)
       .x(d3.scale.linear()
-        .domain([-14, -5])
-        .rangeRound([0, 10 * 40])),
+        .domain([-11800, -11400])
+        .rangeRound([0, 400])),
     barChart()
-        .dimension(theta)
-        .group(gtheta)
+        .dimension(alpha)
+        .group(galpha)
       .x(d3.scale.linear()
-        .domain([0, 1])
-        .rangeRound([0, 10 * 40]))
+        .domain([24, 50])
+        .rangeRound([0, 400]))
   ];
   // Given our array of charts, which we assume are in the same order as the
   // .chart elements in the DOM, bind the charts to the DOM and render them.
@@ -393,7 +393,7 @@ d3.csv("statastan.csv", function(error, data) {
    ################# line charts ###################
    ################################################# */
 
-	var chainwidth = 900,
+	var chainwidth = 800,
 		chainheight = 300,
 		axisLabelSpace = 50,
 		legendSpace = 100,
@@ -407,16 +407,16 @@ d3.csv("statastan.csv", function(error, data) {
 
   var lineminx = d3.min(data, function(d) { return d.index; });
   var linemaxx = d3.max(data, function(d) { return d.index; });
-  var lineminy = d3.min(data, function(d) { return d.theta; });
-  var linemaxy = d3.max(data, function(d) { return d.theta; });
+  var lineminy = d3.min(data, function(d) { return d.alpha; });
+  var linemaxy = d3.max(data, function(d) { return d.alpha; });
 	x.domain([lineminx,linemaxx]);
 	y.domain([lineminy,linemaxy]);
 
 	var makeline = d3.svg.line()
 		.x(function(d) { return x(d.index); })
-		.y(function(d) { return y(d.theta); });
+		.y(function(d) { return y(d.alpha); });
 
- var thetasvg = d3.select('div#thetaline').append('svg')
+ var alphasvg = d3.select('div#alphaline').append('svg')
           .attr('width', chainwidth)
  			    .attr('height', chainheight)
 		.append('g')
@@ -429,19 +429,19 @@ d3.csv("statastan.csv", function(error, data) {
 		.entries(data);
 
 	linedataNest.forEach(function(d,i) {
-    thetasvg.append('path')
+    alphasvg.append('path')
   		.attr('class', 'chain')
   		.attr('d', makeline(d.values));
   });
 
   var xaxisheight = chainheight-chainaxispad;
 
-	thetasvg.append('g')
+	alphasvg.append('g')
 		.attr('class', 'x axis')
 		.attr('transform', 'translate(0,' + xaxisheight + ')')
 		.call(xAxis);
 
-	thetasvg.append('g')
+	alphasvg.append('g')
 		.attr('class', 'y axis')
 		.call(yAxis);
 
