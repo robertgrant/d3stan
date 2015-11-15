@@ -226,7 +226,8 @@ img#logo {
 
 <br><br><hr>
 <h2>Line charts of chains</h2>
-<input type=button onclick="alert('This button doesn't do anything (yet)');" value="Next 3 parameters">
+<input type=button onclick="window.alert('This button doesn't do anything (yet)');" value="Next 3 parameters">
+<input type=button onclick="omit100();" value="Omit first 100">
 
 <div id='alphaline'>
 </div>
@@ -247,118 +248,20 @@ img#logo {
 
 <script>
 
-d3.csv("mmi-extract.csv", function(error, data) {
-
-  var formatNumber = d3.format(",d"),
-      formatChange = d3.format("+,d"),
-      formatDate = d3.time.format("%B %d, %Y"),
-      formatTime = d3.time.format("%I:%M %p");
-
-  data.forEach(function(d, i) {
-    d.index = i;
-    d.lp__ = +d.lp__;
-    d.alpha = +d.alpha;
-    d.beta1 = +d.beta1;
-    d.beta2 = +d.beta2;
-    d.beta3 = +d.beta3;
-    d.beta4 = +d.beta4;
-  });
-
-  // Draw up the table of stats
-//  d3.select("td#meanalpha").text(function() { return math.mean(d.alpha); });
-
-  // Create the crossfilter for the relevant dimensions and groups.
-  var chain = crossfilter(data),
-      all = chain.groupAll(),
-      lp = chain.dimension(function(d) { return d.lp__; }),
-      glp = lp.group(function(d) { return Math.floor((d)/10) * 10; }),
-      alpha = chain.dimension(function(d) { return d.alpha; }),
-      galpha = alpha.group(function(d) { return Math.floor(d/(26/40)) * (26/40) ; }),
-      beta1 = chain.dimension(function(d) { return d.beta1; }),
-      gbeta1 = beta1.group(function(d) { return Math.floor(d/(1.2/40)) * (1.2/40) ; }),
-      beta2 = chain.dimension(function(d) { return d.beta2; }),
-      gbeta2 = beta2.group(function(d) { return Math.floor(d/(1.5/40)) * (1.5/40) ; }),
-      beta3 = chain.dimension(function(d) { return d.beta3; }),
-      gbeta3 = beta3.group(function(d) { return Math.floor(d/(4/40)) * (4/40) ; }),
-      beta4 = chain.dimension(function(d) { return d.beta4; }),
-      gbeta4 = beta4.group(function(d) { return Math.floor(d/(8/40)) * (8/40) ; }),
-      ind = chain.dimension(function(d) {return d.index}),
-      gind = ind.group(function(d) { return Math.floor(d);});
-
-  /* chart ranges should be multiples of ten because that is the width of a bar +
-      padding; allow 20px for margins within the width specified in CSS */
-  var charts = [
-    barChart()
-        .dimension(lp)
-        .group(glp)
-      .x(d3.scale.linear()
-        .domain([-11800, -11400])
-        .rangeRound([0, 400])),
-    barChart()
-        .dimension(alpha)
-        .group(galpha)
-      .x(d3.scale.linear()
-        .domain([24, 50])
-        .rangeRound([0, 400])),
-    barChart()
-        .dimension(beta1)
-        .group(gbeta1)
-      .x(d3.scale.linear()
-        .domain([-0.2, 1])
-        .rangeRound([0, 400])),
-    barChart()
-        .dimension(beta2)
-        .group(gbeta2)
-      .x(d3.scale.linear()
-        .domain([-0.5, 1])
-        .rangeRound([0, 400])),
-    barChart()
-        .dimension(beta3)
-        .group(gbeta3)
-      .x(d3.scale.linear()
-        .domain([-2, 2])
-        .rangeRound([0, 400])),
-    barChart()
-        .dimension(beta4)
-        .group(gbeta4)
-      .x(d3.scale.linear()
-        .domain([-2, 6])
-        .rangeRound([0, 400]))
-  ];
-  /* Given our array of charts, which we assume are in the same order as the
-     .chart elements in the DOM, bind the charts to the DOM and render them.
-     We also listen to the chart's brush events to update the display. */
-  var chart = d3.selectAll(".chart")
-      .data(charts)
-      .each(function(chart) { chart.on("brush", renderAll).on("brushend", renderAll); });
-  // Render the total.
-  d3.selectAll("#total")
-      .text(formatNumber(chain.size()));
-  renderAll();
-  // Renders the specified chart or list.
-  function render(method) {
-    d3.select(this).call(method);
-  }
-  // Whenever the brush moves, re-rendering everything
-  function renderAll() {
-    chart.each(render);
-    //list.each(render);
-    d3.select("#active").text(formatNumber(all.value()));
-  }
-  window.filter = function(filters) {
-    filters.forEach(function(d, i) { charts[i].filter(d); });
-    renderAll();
-  };
-  window.reset = function(i) {
-    charts[i].filter(null);
-    renderAll();
-  };
 
 
 
-/* ################################################
-   ################# bar charts ###################
-   ################################################ */
+
+
+
+
+
+
+
+/* ##############################################################################
+   ############################## histogram #####################################
+   ################# (which crossfilter calls bar charts...) ####################
+   ############################################################################## */
 
 
   function barChart() {
@@ -530,9 +433,22 @@ d3.csv("mmi-extract.csv", function(error, data) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 /* #################################################
    ################# line charts ###################
    ################################################# */
+
+function lineCharts(data) {
 
 	var chainwidth = 800,
 		chainheight = 300,
@@ -585,7 +501,136 @@ d3.csv("mmi-extract.csv", function(error, data) {
 	alphasvg.append('g')
 		.attr('class', 'y axis')
 		.call(yAxis);
+}
 
+
+
+
+
+
+
+
+/* #################################################
+   ################# create page ###################
+   ################################################# */
+
+function makePage(data) {
+    // Draw up the table of stats
+  //  d3.select("td#meanalpha").text(function() { return math.mean(d.alpha); });
+
+    // Create the crossfilter for the relevant dimensions and groups.
+    var chain = crossfilter(data),
+        all = chain.groupAll(),
+        lp = chain.dimension(function(d) { return d.lp__; }),
+        glp = lp.group(function(d) { return Math.floor((d)/10) * 10; }),
+        alpha = chain.dimension(function(d) { return d.alpha; }),
+        galpha = alpha.group(function(d) { return Math.floor(d/(26/40)) * (26/40) ; }),
+        beta1 = chain.dimension(function(d) { return d.beta1; }),
+        gbeta1 = beta1.group(function(d) { return Math.floor(d/(1.2/40)) * (1.2/40) ; }),
+        beta2 = chain.dimension(function(d) { return d.beta2; }),
+        gbeta2 = beta2.group(function(d) { return Math.floor(d/(1.5/40)) * (1.5/40) ; }),
+        beta3 = chain.dimension(function(d) { return d.beta3; }),
+        gbeta3 = beta3.group(function(d) { return Math.floor(d/(4/40)) * (4/40) ; }),
+        beta4 = chain.dimension(function(d) { return d.beta4; }),
+        gbeta4 = beta4.group(function(d) { return Math.floor(d/(8/40)) * (8/40) ; }),
+        ind = chain.dimension(function(d) {return d.index}),
+        gind = ind.group(function(d) { return Math.floor(d);});
+
+    /* chart ranges should be multiples of ten because that is the width of a bar +
+        padding; allow 20px for margins within the width specified in CSS */
+    var charts = [
+      barChart()
+          .dimension(lp)
+          .group(glp)
+        .x(d3.scale.linear()
+          .domain([-11800, -11400])
+          .rangeRound([0, 400])),
+      barChart()
+          .dimension(alpha)
+          .group(galpha)
+        .x(d3.scale.linear()
+          .domain([24, 50])
+          .rangeRound([0, 400])),
+      barChart()
+          .dimension(beta1)
+          .group(gbeta1)
+        .x(d3.scale.linear()
+          .domain([-0.2, 1])
+          .rangeRound([0, 400])),
+      barChart()
+          .dimension(beta2)
+          .group(gbeta2)
+        .x(d3.scale.linear()
+          .domain([-0.5, 1])
+          .rangeRound([0, 400])),
+      barChart()
+          .dimension(beta3)
+          .group(gbeta3)
+        .x(d3.scale.linear()
+          .domain([-2, 2])
+          .rangeRound([0, 400])),
+      barChart()
+          .dimension(beta4)
+          .group(gbeta4)
+        .x(d3.scale.linear()
+          .domain([-2, 6])
+          .rangeRound([0, 400]))
+    ];
+    /* Given our array of charts, which we assume are in the same order as the
+       .chart elements in the DOM, bind the charts to the DOM and render them.
+       We also listen to the chart's brush events to update the display. */
+    var chart = d3.selectAll(".chart")
+        .data(charts)
+        .each(function(chart) { chart.on("brush", renderAll).on("brushend", renderAll); });
+    // Render the total.
+    d3.selectAll("#total")
+        .text(formatNumber(chain.size()));
+    renderAll();
+    // Renders the specified chart or list.
+    function render(method) {
+      d3.select(this).call(method);
+    }
+    // Whenever the brush moves, re-rendering everything
+    function renderAll() {
+      chart.each(render);
+      //list.each(render);
+      d3.select("#active").text(formatNumber(all.value()));
+    }
+    window.filter = function(filters) {
+      filters.forEach(function(d, i) { charts[i].filter(d); });
+      renderAll();
+    };
+    window.reset = function(i) {
+      charts[i].filter(null);
+      renderAll();
+    };
+
+    // draw line charts
+    lineCharts(data);
+}
+
+
+
+
+
+d3.csv("mmi-extract.csv", function(error, data) {
+
+  formatNumber = d3.format(",d"),
+  formatChange = d3.format("+,d"),
+  formatDate = d3.time.format("%B %d, %Y"),
+  formatTime = d3.time.format("%I:%M %p");
+
+  data.forEach(function(d, i) {
+    d.index = i;
+    d.lp__ = +d.lp__;
+    d.alpha = +d.alpha;
+    d.beta1 = +d.beta1;
+    d.beta2 = +d.beta2;
+    d.beta3 = +d.beta3;
+    d.beta4 = +d.beta4;
+  });
+
+  makePage(data);
 
 });
 </script>
