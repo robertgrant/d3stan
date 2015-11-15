@@ -7,6 +7,7 @@
 
 <script src="crossfilter.v1.min.js"></script>
 <script src="d3.v3.min.js"></script>
+<!-- <script src="math.min.js"></script> -->
 <!-- <script src='angular.min.js'></script> -->
 
 <style>
@@ -137,7 +138,8 @@ img#logo {
 
 <p><strong><a href="http://mc-stan.org">Stan</a></strong> is a C++ library for probabilistic sampling, with many interfaces allowing applied researchers to fit complex Bayesian models to their data from inside their favourite analysis software. It is essential to check that the samples have behaved as expected: that they have converged to a posterior distribution, that autocorrelation is not distorting the distribution of values, and that there are no outlier samples biasing the statistics. This is usually done with a mixture of diagnostic statistics and plots, which can be quite time-consuming when there are many parameters, which is why we wrote <strong>stan interactive</strong>. By writing the chains of successive samples into an interactive web page, we can employ the powerful JavaScript libraries D3, crossfilter and angular to recalculate and draw charts on the fly, freeing up the user to concentrate on what the results mean.</p>
 
-
+<hr>
+<h2>Histograms of posterior distributions</h2>
 <div id="charts">
   <div id="lp-chart" class="chart">
     <div class="title">log-posterior</div>
@@ -161,9 +163,75 @@ img#logo {
 
 <aside id="totals"><span id="active">-</span> of <span id="total">-</span> samples selected.</aside>
 
+<br><br><hr>
+<h2>Statistics</h2>
+<table>
+  <tr>
+    <th>Parameter</th><th>Mean</th><th>SD</th><th>MC error</th><th>R-hat</th><th>ESS</th>
+  </tr>
+  <tr>
+    <td>Alpha</td>
+    <td id="meanalpha"></td>
+    <td>0.456</td>
+    <td>0.00789</td>
+    <td><span id="rhat">-</span></td>
+    <td><span id="ess">-</span></td>
+  </tr>
+  <tr>
+    <td>Beta1</td>
+    <td>1.23</td>
+    <td>0.456</td>
+    <td>0.00789</td>
+    <td><span id="rhat">-</span></td>
+    <td><span id="ess">-</span></td>
+  </tr>
+  <tr>
+    <td>Beta2</td>
+    <td>1.23</td>
+    <td>0.456</td>
+    <td>0.00789</td>
+    <td><span id="rhat">-</span></td>
+    <td><span id="ess">-</span></td>
+  </tr>
+  <tr>
+    <td>Beta3</td>
+    <td>1.23</td>
+    <td>0.456</td>
+    <td>0.00789</td>
+    <td><span id="rhat">-</span></td>
+    <td><span id="ess">-</span></td>
+  </tr>
+  <tr>
+    <td>Beta4</td>
+    <td>1.23</td>
+    <td>0.456</td>
+    <td>0.00789</td>
+    <td><span id="rhat">-</span></td>
+    <td><span id="ess">-</span></td>
+  </tr>
+</table>
+
+  <!--
+    divide chain(s) in half to make m half-chains of length n
+    between-sequence variance B = (n/(m-1))*Sum()(chain.mean-global.mean)^2)
+    within-sequence variance W = (1/m)*Sum(chain.var)
+    marginal posterior variance = ((n-1)/n)*W + (1/n)*B
+    rhat = sqrt(marg.post.var/W)
+
+    variogram.t = 1/(m*(n-t))*Sum.1.to.m(Sum.(t+1).to.n((psi.i.j - psi.(i-t).j)^2))
+    autocor.t = 1-(variogram.t / marg.post.var)
+    ess = (m*n)/(1+2*(sum.1.to.T(autocor.t)))
+    (where T is first t such that: autocor.t+1 + autocor.t+2 < 0 )
+  -->
+
+<br><br><hr>
+<h2>Line charts of chains</h2>
+<input type=button onclick="alert('This button doesn't do anything (yet)');" value="Next 3 parameters">
 
 <div id='alphaline'>
 </div>
+
+<br><br><hr>
 
 <footer>
   <span style="float:right;">
@@ -195,6 +263,10 @@ d3.csv("mmi-extract.csv", function(error, data) {
     d.beta3 = +d.beta3;
     d.beta4 = +d.beta4;
   });
+
+  // Draw up the table of stats
+//  d3.select("td#meanalpha").text(function() { return math.mean(d.alpha); });
+
   // Create the crossfilter for the relevant dimensions and groups.
   var chain = crossfilter(data),
       all = chain.groupAll(),
