@@ -9,6 +9,7 @@ With apologies if these notes-to-self make little sense...
 
 * calculate bounds for x-axes in histograms
 * include padding around histograms
+* show index number and value on hover over the line charts
 * calculate and show r hat and effective sample size, DIC, GLR?
 * drop-down (angular?) list to choose parameters for chains
   * or show first ten and allow scrolling and ticking, or 'next 10'

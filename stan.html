@@ -171,43 +171,43 @@ img#logo {
   </tr>
   <tr>
     <td>Alpha</td>
-    <td id="meanalpha"></td>
+    <td id="meanalpha">1.23</td>
     <td>0.456</td>
     <td>0.00789</td>
-    <td><span id="rhat">-</span></td>
-    <td><span id="ess">-</span></td>
+    <td id="rhat">1.01</td>
+    <td id="ess">977</td>
   </tr>
   <tr>
     <td>Beta1</td>
     <td>1.23</td>
     <td>0.456</td>
     <td>0.00789</td>
-    <td><span id="rhat">-</span></td>
-    <td><span id="ess">-</span></td>
+    <td id="rhat">1.01</td>
+    <td id="ess">977</td>
   </tr>
   <tr>
     <td>Beta2</td>
     <td>1.23</td>
     <td>0.456</td>
     <td>0.00789</td>
-    <td><span id="rhat">-</span></td>
-    <td><span id="ess">-</span></td>
+    <td id="rhat">1.01</td>
+    <td id="ess">977</td>
   </tr>
   <tr>
     <td>Beta3</td>
     <td>1.23</td>
     <td>0.456</td>
     <td>0.00789</td>
-    <td><span id="rhat">-</span></td>
-    <td><span id="ess">-</span></td>
+    <td id="rhat">1.01</td>
+    <td id="ess">977</td>
   </tr>
   <tr>
     <td>Beta4</td>
     <td>1.23</td>
     <td>0.456</td>
     <td>0.00789</td>
-    <td><span id="rhat">-</span></td>
-    <td><span id="ess">-</span></td>
+    <td id="rhat">1.01</td>
+    <td id="ess">977</td>
   </tr>
 </table>
 
@@ -495,8 +495,8 @@ function lineCharts(data,omit) {
 	y.domain([lineminy,linemaxy]);
 
 	var makeline = d3.svg.line()
-		.x(function(d) { return d.index; })
-		.y(function(d) { return d.alpha; });
+		.x(function(d) { return x(d.index); })
+		.y(function(d) { return y(d.alpha); });
 
     alphasvg.append('path')
   		.attr('class', 'chain')
