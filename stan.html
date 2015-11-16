@@ -164,7 +164,7 @@ img#logo {
 <aside id="totals"><span id="active">-</span> of <span id="total">-</span> samples selected.</aside>
 
 <br><br><hr>
-<h2>Statistics</h2>
+<h2>Statistics (phony placeholders)</h2>
 <table>
   <tr>
     <th>Parameter</th><th>Mean</th><th>SD</th><th>MC error</th><th>R-hat</th><th>ESS</th>
@@ -229,8 +229,9 @@ img#logo {
 <input type=button onclick="window.alert('This button doesn't do anything (yet)');" value="Next 3 parameters">
 <input type=button onclick="omit100();" value="Omit first 100">
 
-<div id='alphaline'>
-</div>
+<div id='alphaline'></div>
+<div id='beta1line'></div>
+<div id='beta2line'></div>
 
 <br><br><hr>
 
@@ -246,17 +247,18 @@ img#logo {
 
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
 <script>
-
-
-
-
-
-
-
-
-
-
 
 /* ##############################################################################
    ############################## histogram #####################################
@@ -293,6 +295,7 @@ img#logo {
           g = div.append("svg")
               .attr("width", width + margin.left + margin.right)
               .attr("height", height + margin.top + margin.bottom)
+              .attr("class","histogramsvg")
             .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
           g.append("clipPath")
@@ -448,7 +451,15 @@ img#logo {
    ################# line charts ###################
    ################################################# */
 
-function lineCharts(data) {
+function lineCharts(data,omit) {
+
+  /* We don't want lineCharts to get re-rendered each time a brush is moved
+    on the histograms. So, although crossfilter is a convenient and fast way
+    to omit the first n samples, or thin them, lineCharts is rendered only when
+    the page is loaded or the omit/thin buttons are pressed. */
+
+  //dataomitted = gind.all();
+  dataomitted = data;
 
 	var chainwidth = 800,
 		chainheight = 300,
@@ -462,10 +473,10 @@ function lineCharts(data) {
 
 	var domainPadding = 0.2;
 
-  var lineminx = d3.min(data, function(d) { return d.index; });
-  var linemaxx = d3.max(data, function(d) { return d.index; });
-  var lineminy = d3.min(data, function(d) { return d.alpha; });
-  var linemaxy = d3.max(data, function(d) { return d.alpha; });
+  var lineminx = d3.min(dataomitted, function(d) { return d.index; });
+  var linemaxx = d3.max(dataomitted, function(d) { return d.index; });
+  var lineminy = d3.min(dataomitted, function(d) { return d.alpha; });
+  var linemaxy = d3.max(dataomitted, function(d) { return d.alpha; });
 	x.domain([lineminx,linemaxx]);
 	y.domain([lineminy,linemaxy]);
 
@@ -476,6 +487,7 @@ function lineCharts(data) {
  var alphasvg = d3.select('div#alphaline').append('svg')
           .attr('width', chainwidth)
  			    .attr('height', chainheight)
+          .attr('class','chainsvg')
 		.append('g')
           .attr('width', chainwidth-chainaxispad)
           .attr('height',chainheight-chainaxispad)
@@ -483,7 +495,7 @@ function lineCharts(data) {
 
 	var linedataNest = d3.nest()
 		.key(function(d) {return d.twoway;})
-		.entries(data);
+		.entries(dataomitted);
 
 	linedataNest.forEach(function(d,i) {
     alphasvg.append('path')
@@ -510,31 +522,41 @@ function lineCharts(data) {
 
 
 
+
+
+
+
+
+
+
+
+
 /* #################################################
    ################# create page ###################
    ################################################# */
 
-function makePage(data) {
+function makePage(data,omit) {
     // Draw up the table of stats
   //  d3.select("td#meanalpha").text(function() { return math.mean(d.alpha); });
 
     // Create the crossfilter for the relevant dimensions and groups.
-    var chain = crossfilter(data),
-        all = chain.groupAll(),
-        lp = chain.dimension(function(d) { return d.lp__; }),
-        glp = lp.group(function(d) { return Math.floor((d)/10) * 10; }),
-        alpha = chain.dimension(function(d) { return d.alpha; }),
-        galpha = alpha.group(function(d) { return Math.floor(d/(26/40)) * (26/40) ; }),
-        beta1 = chain.dimension(function(d) { return d.beta1; }),
-        gbeta1 = beta1.group(function(d) { return Math.floor(d/(1.2/40)) * (1.2/40) ; }),
-        beta2 = chain.dimension(function(d) { return d.beta2; }),
-        gbeta2 = beta2.group(function(d) { return Math.floor(d/(1.5/40)) * (1.5/40) ; }),
-        beta3 = chain.dimension(function(d) { return d.beta3; }),
-        gbeta3 = beta3.group(function(d) { return Math.floor(d/(4/40)) * (4/40) ; }),
-        beta4 = chain.dimension(function(d) { return d.beta4; }),
-        gbeta4 = beta4.group(function(d) { return Math.floor(d/(8/40)) * (8/40) ; }),
-        ind = chain.dimension(function(d) {return d.index}),
-        gind = ind.group(function(d) { return Math.floor(d);});
+    chain = crossfilter(data),
+    all = chain.groupAll(),
+    lp = chain.dimension(function(d) { return d.lp__; }),
+    glp = lp.group(function(d) { return Math.floor((d)/10) * 10; }),
+    alpha = chain.dimension(function(d) { return d.alpha; }),
+    galpha = alpha.group(function(d) { return Math.floor(d/(26/40)) * (26/40) ; }),
+    beta1 = chain.dimension(function(d) { return d.beta1; }),
+    gbeta1 = beta1.group(function(d) { return Math.floor(d/(1.2/40)) * (1.2/40) ; }),
+    beta2 = chain.dimension(function(d) { return d.beta2; }),
+    gbeta2 = beta2.group(function(d) { return Math.floor(d/(1.5/40)) * (1.5/40) ; }),
+    beta3 = chain.dimension(function(d) { return d.beta3; }),
+    gbeta3 = beta3.group(function(d) { return Math.floor(d/(4/40)) * (4/40) ; }),
+    beta4 = chain.dimension(function(d) { return d.beta4; }),
+    gbeta4 = beta4.group(function(d) { return Math.floor(d/(8/40)) * (8/40) ; }),
+    ind = chain.dimension(function(d) {return d.index}),
+    indOmit = ind.filterFunction( function(d) { return d>=omit; }),
+    gind = indOmit.group(function(d) { return Math.floor(d);});
 
     /* chart ranges should be multiples of ten because that is the width of a bar +
         padding; allow 20px for margins within the width specified in CSS */
@@ -606,15 +628,22 @@ function makePage(data) {
     };
 
     // draw line charts
-    lineCharts(data);
+    lineCharts(data,omit);
 }
 
 
 
 
 
-d3.csv("mmi-extract.csv", function(error, data) {
 
+
+/* ####################################################################
+   ################# get the data and call makePage ###################
+   ################## to render the start: all data ###################
+   #################################################################### */
+
+
+d3.csv("mmi-extract.csv", function(error, data) {
   formatNumber = d3.format(",d"),
   formatChange = d3.format("+,d"),
   formatDate = d3.time.format("%B %d, %Y"),
@@ -630,9 +659,39 @@ d3.csv("mmi-extract.csv", function(error, data) {
     d.beta4 = +d.beta4;
   });
 
-  makePage(data);
+  makePage(data,0);
 
 });
+
+
+/* ####################################################################
+   ########  re-render having omitted the start of the chains  ########
+   #################################################################### */
+
+function omit100(){
+
+  // remove old content
+  d3.selectAll("svg.histogramsvg").remove();
+  d3.selectAll("svg.chainsvg").remove();
+
+  d3.csv("mmi-extract.csv", function(error, data) {
+    data.forEach(function(d, i) {
+      d.index = i;
+      d.lp__ = +d.lp__;
+      d.alpha = +d.alpha;
+      d.beta1 = +d.beta1;
+      d.beta2 = +d.beta2;
+      d.beta3 = +d.beta3;
+      d.beta4 = +d.beta4;
+    });
+
+    makePage(data,100);
+
+  });
+}
+
+
+
 </script>
 
 

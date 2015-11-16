@@ -1,6 +1,12 @@
 To do
 =====
 
+General points:
+* There are too many global namespace variables, but once this is fully functioning and stable, it can be cleaned up.
+* We need to avoid re-rendering and reading the CSV file in order to omit samples or thin them.
+
+With apologies if these notes-to-self make little sense...
+
 * calculate and show r hat and effective sample size, DIC, GLR?
 * drop-down (angular?) list to choose parameters for chains
   * or show first ten and allow scrolling and ticking, or 'next 10'
