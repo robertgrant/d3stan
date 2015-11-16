@@ -10,7 +10,7 @@ With apologies if these notes-to-self make little sense...
 * calculate bounds for x-axes in histograms
 * include padding around histograms
 * show index number and value on hover over the line charts
-* calculate and show r hat and effective sample size, DIC, GLR?
+* calculate and show r hat and effective sample size, DIC?
 * drop-down (angular?) list to choose parameters for chains
   * or show first ten and allow scrolling and ticking, or 'next 10'
 * Angular input to:
@@ -18,6 +18,7 @@ With apologies if these notes-to-self make little sense...
   * drop first n samples from data
   * likewise for thinning
   * and excluding chains
+* display starting values
 * need to display multiple chains - either as superimposed line charts or densities
   * the chains need to turn into nesting (see test-auto.html)
   * then they can be separated for the line chart or combined in the crossfilter
