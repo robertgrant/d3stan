@@ -7,6 +7,8 @@ General points:
 
 With apologies if these notes-to-self make little sense...
 
+* calculate bounds for x-axes in histograms
+* include padding around histograms
 * calculate and show r hat and effective sample size, DIC, GLR?
 * drop-down (angular?) list to choose parameters for chains
   * or show first ten and allow scrolling and ticking, or 'next 10'
@@ -25,4 +27,4 @@ With apologies if these notes-to-self make little sense...
 * splines over chains
 * How could we read in large chain files efficiently? There could easily be 10e6 samples and 10e4 parameters.
   * One possibility is to have the stan-interactive C++ program chop up the Stan output into a series of csv files, while also writing the names of all the parameters and monitored values into JSON.
-  * But also, how does Stan cope with really big output files anyway? They could exceed the maximum file size permitted by the OS.
+  * But also, how should Stan cope with really big output files anyway? They could exceed the maximum file size permitted by the OS.

@@ -458,8 +458,11 @@ function lineCharts(data,omit) {
     to omit the first n samples, or thin them, lineCharts is rendered only when
     the page is loaded or the omit/thin buttons are pressed. */
 
-  //dataomitted = gind.all();
-  dataomitted = data;
+// this unpleasant hack will have to do for now:
+  dataomitted = [];
+  for (var i in data) {
+    if (data[i].index>=omit) dataomitted.push(data[i]);
+  }
 
 	var chainwidth = 800,
 		chainheight = 300,
@@ -473,6 +476,17 @@ function lineCharts(data,omit) {
 
 	var domainPadding = 0.2;
 
+ var alphasvg = d3.select('div#alphaline').append('svg')
+          .attr('width', chainwidth)
+ 			    .attr('height', chainheight)
+          .attr('class','chainsvg')
+		.append('g')
+          .attr('width', chainwidth-chainaxispad)
+          .attr('height',chainheight-chainaxispad)
+          .attr('transform', 'translate(' + chainaxispad + ',0)')
+    .data(dataomitted);
+
+
   var lineminx = d3.min(dataomitted, function(d) { return d.index; });
   var linemaxx = d3.max(dataomitted, function(d) { return d.index; });
   var lineminy = d3.min(dataomitted, function(d) { return d.alpha; });
@@ -481,18 +495,13 @@ function lineCharts(data,omit) {
 	y.domain([lineminy,linemaxy]);
 
 	var makeline = d3.svg.line()
-		.x(function(d) { return x(d.index); })
-		.y(function(d) { return y(d.alpha); });
+		.x(function(d) { return d.index; })
+		.y(function(d) { return d.alpha; });
 
- var alphasvg = d3.select('div#alphaline').append('svg')
-          .attr('width', chainwidth)
- 			    .attr('height', chainheight)
-          .attr('class','chainsvg')
-		.append('g')
-          .attr('width', chainwidth-chainaxispad)
-          .attr('height',chainheight-chainaxispad)
-          .attr('transform', 'translate(' + chainaxispad + ',0)');
-
+    alphasvg.append('path')
+  		.attr('class', 'chain')
+  		.attr('d', makeline(dataomitted));
+/*
 	var linedataNest = d3.nest()
 		.key(function(d) {return d.twoway;})
 		.entries(dataomitted);
@@ -500,9 +509,9 @@ function lineCharts(data,omit) {
 	linedataNest.forEach(function(d,i) {
     alphasvg.append('path')
   		.attr('class', 'chain')
-  		.attr('d', makeline(d.values));
+  		.attr('d', makeline(d));
   });
-
+*/
   var xaxisheight = chainheight-chainaxispad;
 
 	alphasvg.append('g')
@@ -557,6 +566,7 @@ function makePage(data,omit) {
     ind = chain.dimension(function(d) {return d.index}),
     indOmit = ind.filterFunction( function(d) { return d>=omit; }),
     gind = indOmit.group(function(d) { return Math.floor(d);});
+
 
     /* chart ranges should be multiples of ten because that is the width of a bar +
         padding; allow 20px for margins within the width specified in CSS */
@@ -657,9 +667,13 @@ d3.csv("mmi-extract.csv", function(error, data) {
     d.beta2 = +d.beta2;
     d.beta3 = +d.beta3;
     d.beta4 = +d.beta4;
+    d.sigma = +d.sigma;
   });
 
+  deleteme = data;
+
   makePage(data,0);
+
 
 });
 
@@ -683,7 +697,10 @@ function omit100(){
       d.beta2 = +d.beta2;
       d.beta3 = +d.beta3;
       d.beta4 = +d.beta4;
+      d.sigma = +d.sigma;
     });
+
+    deleteme = data;
 
     makePage(data,100);
 
